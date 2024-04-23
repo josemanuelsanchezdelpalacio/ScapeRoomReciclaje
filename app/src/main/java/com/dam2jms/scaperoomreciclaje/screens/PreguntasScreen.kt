@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.dam2jms.scaperoomreciclaje.data.listaPreguntas
 import com.dam2jms.scaperoomreciclaje.data.preguntasRespuestas
 import com.dam2jms.scaperoomreciclaje.models.ViewModelJuego
 import com.dam2jms.scaperoomreciclaje.states.UiState
@@ -76,13 +75,15 @@ fun PreguntasBodyScreen(modifier: Modifier, mvvm: ViewModelJuego, uiState: UiSta
     var opcionSeleccionada by remember { mutableStateOf("") }
 
     Column(modifier = modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+
+        //muestro la pregunta por pantalla
         Text(
             text = preguntasRespuestas.keys.elementAt(uiState.preguntaActual),
             fontSize = 24.sp
         )
 
-        //creo la lista desplegable de las operaciones
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        //creo la lista desplegable con las opciones
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }) {
@@ -119,50 +120,46 @@ fun PreguntasBodyScreen(modifier: Modifier, mvvm: ViewModelJuego, uiState: UiSta
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
+            Button(onClick = { mvvm.anteriorPregunta() }) { Text(text = "Anterior") }
+            Button(onClick = { mvvm.siguientePregunta() }) { Text(text = "Siguiente") }
+        }
+
+        if (uiState.preguntaActual == preguntasRespuestas.size - 1) {
             Button(
                 onClick = {
-                    mvvm.anteriorPregunta()
-                }
-            ) {
-                Text(text = "Anterior")
-            }
-
-            Button(
-                onClick = {
-                    mvvm.siguientePregunta()
-                }
-            ) {
-                Text(text = "Siguiente")
-            }
-
-            if (uiState.preguntaActual == preguntasRespuestas.size - 1) {
-                Button(
-                    onClick = {
-                        mostrarAlertDialog = mvvm.comprobarRespuestas()
+                    // Aplica el método comprobarRespuestas cuando se hace clic en el botón
+                    val respuestasCorrectas = mvvm.comprobarRespuestas()
+                    if (respuestasCorrectas == preguntasRespuestas.size) {
+                        mostrarAlertDialog = true
+                    } else {
+                        mostrarAlertDialog = true
                     }
-                ) {
-                    Text(text = "Comprobar respuestas")
-                }
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = "Comprobar respuestas")
             }
         }
 
         if (mostrarAlertDialog) {
+            val respuestasCorrectas = mvvm.comprobarRespuestas()
             AlertDialog(
-                title = { Text("¡HAS GANADO!") },
-                text = { Text("El código secreto es ${mvvm.generarCodigo()}") },
-                onDismissRequest = {
-                    mostrarAlertDialog = false
-                    mvvm.reiniciarJuego()
+                onDismissRequest = { mostrarAlertDialog = false },
+                title = { Text(text = "Resultado") },
+                text = {
+                    if (respuestasCorrectas == preguntasRespuestas.size) {
+                        Text(text = "Enhorabuena el código secreto es ${mvvm.generarCodigo()}")
+                    } else {
+                        Text(text = "Tienes $respuestasCorrectas respuestas correctas. Inténtalo de nuevo.")
+                    }
                 },
                 confirmButton = {
-                    Button(onClick = {
-                        mostrarAlertDialog = false
-                        mvvm.reiniciarJuego()
-                    }) {
+                    Button(onClick = { mostrarAlertDialog = false }) {
                         Text(text = "OK")
                     }
                 }
             )
         }
+
     }
 }

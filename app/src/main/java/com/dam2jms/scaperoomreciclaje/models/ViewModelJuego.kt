@@ -1,20 +1,21 @@
 package com.dam2jms.scaperoomreciclaje.models
 
 import androidx.lifecycle.ViewModel
-import com.dam2jms.scaperoomreciclaje.data.listaPreguntas
 import com.dam2jms.scaperoomreciclaje.data.preguntasRespuestas
 import com.dam2jms.scaperoomreciclaje.states.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlin.random.Random
 
 class ViewModelJuego : ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState
 
+    private val _respuestasUsuario = MutableStateFlow(mutableMapOf<Int, String>())
+    val respuestasUsuario: StateFlow<MutableMap<Int, String>> = _respuestasUsuario
+
     fun seleccionarRespuesta(respuesta: String) {
         _uiState.value = _uiState.value.copy(respuestaSeleccionada = respuesta)
+        _respuestasUsuario.value[_uiState.value.preguntaActual] = respuesta
     }
 
     fun siguientePregunta() {
@@ -29,9 +30,15 @@ class ViewModelJuego : ViewModel() {
         }
     }
 
-    fun comprobarRespuestas(): Boolean {
-        val respuestaCorrecta = preguntasRespuestas.values.elementAt(_uiState.value.preguntaActual)
-        return _uiState.value.respuestaSeleccionada == respuestaCorrecta
+    fun comprobarRespuestas(): Int {
+        var respuestasCorrectas = 0
+        _respuestasUsuario.value.forEach { (preguntaIndex, respuesta) ->
+            val pregunta = preguntasRespuestas.keys.elementAt(preguntaIndex)
+            if (preguntasRespuestas[pregunta] == respuesta) {
+                respuestasCorrectas++
+            }
+        }
+        return respuestasCorrectas
     }
 
     fun reiniciarJuego() {
