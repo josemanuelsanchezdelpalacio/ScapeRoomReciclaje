@@ -83,7 +83,11 @@ fun PreguntasBodyScreen(modifier: Modifier, mvvm: ViewModelJuego, uiState: UiSta
         )
 
         //creo la lista desplegable con las opciones
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }) {
@@ -124,11 +128,12 @@ fun PreguntasBodyScreen(modifier: Modifier, mvvm: ViewModelJuego, uiState: UiSta
             Button(onClick = { mvvm.siguientePregunta() }) { Text(text = "Siguiente") }
         }
 
+        //si la pregunta actual es la ultima aparece el boton de comprobarRespuestas
         if (uiState.preguntaActual == preguntasRespuestas.size - 1) {
             Button(
                 onClick = {
-                    // Aplica el método comprobarRespuestas cuando se hace clic en el botón
                     val respuestasCorrectas = mvvm.comprobarRespuestas()
+                    //muestro los alertdialog independientemente de si todas son correctas o no
                     if (respuestasCorrectas == preguntasRespuestas.size) {
                         mostrarAlertDialog = true
                     } else {
@@ -143,23 +148,30 @@ fun PreguntasBodyScreen(modifier: Modifier, mvvm: ViewModelJuego, uiState: UiSta
 
         if (mostrarAlertDialog) {
             val respuestasCorrectas = mvvm.comprobarRespuestas()
+
             AlertDialog(
-                onDismissRequest = { mostrarAlertDialog = false },
-                title = { Text(text = "Resultado") },
-                text = {
+                onDismissRequest = {
+                    mvvm.reiniciarJuego()
+                    mostrarAlertDialog = false
+                },
+                title = {
+                    //si todas las respuestas son correctas muestro el codigo secreto
+                    //si no muestro el numero de preguntas acertadas
                     if (respuestasCorrectas == preguntasRespuestas.size) {
                         Text(text = "Enhorabuena el código secreto es ${mvvm.generarCodigo()}")
                     } else {
-                        Text(text = "Tienes $respuestasCorrectas respuestas correctas. Inténtalo de nuevo.")
+                        Text(text = "Tienes $respuestasCorrectas respuestas correctas")
                     }
                 },
                 confirmButton = {
-                    Button(onClick = { mostrarAlertDialog = false }) {
+                    Button(onClick = {
+                        mvvm.reiniciarJuego()
+                        mostrarAlertDialog = false
+                    }) {
                         Text(text = "OK")
                     }
                 }
             )
         }
-
     }
 }
