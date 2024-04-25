@@ -37,7 +37,7 @@ class ViewModelJuego : ViewModel() {
         var respuestasCorrectas = 0
 
         //recorro las respuestas del usuario
-        _respuestasUsuario.value.forEach { (preguntaIndex, respuesta) ->
+        for((preguntaIndex, respuesta) in _respuestasUsuario.value){
             //guardo la pregunta actual
             val pregunta = preguntasRespuestas.keys.elementAt(preguntaIndex)
             //si la respuesta de la pregunta actual es igual a la respuesta del usuario es correcta

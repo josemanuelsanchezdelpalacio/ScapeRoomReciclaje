@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.dam2jms.scaperoomreciclaje.navigation.appNavigation
+import com.dam2jms.scaperoomreciclaje.navigation.AppNavigation
 import com.dam2jms.scaperoomreciclaje.ui.theme.ScapeRoomReciclajeTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    appNavigation()
+                    AppNavigation()
                 }
             }
         }
