@@ -5,6 +5,5 @@ data class UiState(
     var preguntaActual: Int = 0,
     var respuestaSeleccionada: String = "",
     val mostrarDialogo: Boolean = false,
-    var mensajeDialogo: String = "",
     var respuestasUsuario: MutableMap<Int, String> = mutableMapOf()
 )
