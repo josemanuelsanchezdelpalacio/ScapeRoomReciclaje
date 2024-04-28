@@ -9,7 +9,7 @@ import com.dam2jms.scaperoomreciclaje.screens.InstruccionesScreen
 import com.dam2jms.scaperoomreciclaje.screens.PreguntasScreen
 
 @Composable
-fun appNavigation() {
+fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = AppScreens.InstruccionesScreen.route) {
         composable(route = AppScreens.InstruccionesScreen.route) { InstruccionesScreen(navController) }
