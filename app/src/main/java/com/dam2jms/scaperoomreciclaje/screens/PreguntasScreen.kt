@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -13,10 +15,13 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -43,12 +48,16 @@ fun PreguntasScreen(navController: NavController, mvvm: ViewModelJuego) {
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
+            TopAppBar(
                 title = { Text(text = "PREGUNTAS RECICLAJE") },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary
-                )
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
+                actions = {
+                    Text(text = "Intento ${uiState.preguntaActual + 1}/${preguntasRespuestas.size}")
+                }
             )
         }
     ) { paddingValues ->
@@ -62,15 +71,15 @@ fun PreguntasBodyScreen(modifier: Modifier, mvvm: ViewModelJuego, uiState: UiSta
     val context = LocalContext.current
     var mostrarAlertDialog by rememberSaveable { mutableStateOf(false) }
 
-    //variable para controlar la abertura y cierre del menu
+    //variable para controlar la abertura y cierre del menú
     var expanded by remember { mutableStateOf(false) }
 
-    //variable para guardar la opcion seleccionada
+    //variable para guardar la opción seleccionada
     var opcionSeleccionada by remember { mutableStateOf("") }
 
     Column(modifier = modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
 
-        //muestro la pregunta por pantalla
+        // Muestro la pregunta por pantalla
         Text(
             text = preguntasRespuestas.keys.elementAt(uiState.preguntaActual),
             fontSize = 24.sp
@@ -118,16 +127,26 @@ fun PreguntasBodyScreen(modifier: Modifier, mvvm: ViewModelJuego, uiState: UiSta
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(onClick = { mvvm.anteriorPregunta() }) { Text(text = "Anterior") }
-            Button(onClick = { mvvm.siguientePregunta() }) { Text(text = "Siguiente") }
+            Button(
+                onClick = {
+                    mvvm.anteriorPregunta()
+                },
+                enabled = uiState.preguntaActual > 0
+            ) { Text(text = "Anterior") }
+            Button(
+                onClick = {
+                    mvvm.siguientePregunta()
+                },
+                enabled = uiState.preguntaActual < preguntasRespuestas.size - 1
+            ) { Text(text = "Siguiente") }
         }
 
-        //si la pregunta actual es la ultima aparece el boton de comprobarRespuestas
+        //si la pregunta actual es la última aparece el botón de comprobarRespuestas
         if (uiState.preguntaActual == preguntasRespuestas.size - 1) {
             Button(
                 onClick = {
                     val respuestasCorrectas = mvvm.comprobarRespuestas()
-                    //muestro los alertdialog independientemente de si todas son correctas o no
+                    // Muestro los AlertDialog independientemente de si todas son correctas o no
                     if (respuestasCorrectas == preguntasRespuestas.size) {
                         mostrarAlertDialog = true
                     } else {
@@ -149,8 +168,8 @@ fun PreguntasBodyScreen(modifier: Modifier, mvvm: ViewModelJuego, uiState: UiSta
                     mostrarAlertDialog = false
                 },
                 title = {
-                    //si todas las respuestas son correctas muestro el codigo secreto
-                    //si no muestro el numero de preguntas acertadas
+                    //si todas las respuestas son correctas muestro el código secreto
+                    //si no, muestro el número de preguntas acertadas
                     if (respuestasCorrectas == preguntasRespuestas.size) {
                         Text(text = "Enhorabuena el código secreto es ${mvvm.generarCodigo()}")
                     } else {
